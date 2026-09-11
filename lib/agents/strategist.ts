@@ -1,4 +1,4 @@
-import { GeneratedAsset, OpportunityScorecard, ContentItem } from '@/lib/db/schema';
+import { IGeneratedAsset } from '@/lib/db/schema';
 import { db } from '@/lib/db';
 import { analyzeContentDNA } from '@/lib/intelligence/content-dna';
 import { auditContentAgainstBrandRules } from './critic';
@@ -20,7 +20,7 @@ export interface GenerationRequest {
  * Step 3: CriticAgent validates against Brand Rules
  * Step 4: Record workflow provenance lineage
  */
-export async function runContentStrategistLoop(req: GenerationRequest): Promise<GeneratedAsset> {
+export async function runContentStrategistLoop(req: GenerationRequest): Promise<any> {
   const brand = await db.getBrandProfile(req.orgId);
   const rules = await db.getBrandRules(req.orgId);
   const instructions = await db.getHumanInstructions(req.orgId);
@@ -32,22 +32,70 @@ export async function runContentStrategistLoop(req: GenerationRequest): Promise<
 
   if (req.opportunityId) {
     const opps = await db.getOpportunities(req.orgId);
-    const opp = opps.find(o => o.id === req.opportunityId);
+    const opp = opps.find((o: any) => o._id?.toString() === req.opportunityId || o.id === req.opportunityId);
     if (opp) {
       targetTopic = opp.trendTopic;
       evidenceText = opp.whyExplanation;
     }
   }
 
-  // Synthesis based on verified Content DNA
-  const hookHeadline = `Why your body stays exhausted 2 days after working out (The CNS Trap)`;
-  const hookVisualCue = `Founder in clean studio, looking directly into camera, holding a simple water bottle. Conversational, empathetic tone.`;
-  const bodyPoints = [
-    `When you start fitness as a beginner, your muscles recover in 24 hours, but your Central Nervous System (CNS) takes up to 72 hours.`,
-    `Lifting heavy every day keeps your cortisol elevated, tricking your body into holding water and causing chronic fatigue.`,
-    `The 2-step fix: Replace 2 intense lifting days with 30 minutes of low-heart-rate Zone 2 walking and 10 minutes of gentle spinal mobility.`,
+  const AI_KEY = process.env.AI_API_KEY || process.env.FAST_AI_KEY || '';
+  const AI_ENDPOINT = 'https://api.groq.com/openai/v1/chat/completions';
+
+  // LoopAgent Step 1: Strategist & Creator dynamically generate hook, visual cue, and body points
+  let hookHeadline = `The Game-Changing ${targetTopic} Insight Most Creators Overlook`;
+  let hookVisualCue = `Fast-paced visual interrupt contrasting common misconceptions with verified results for ${targetTopic}.`;
+  let bodyPoints = [
+    `The #1 blind spot people encounter when approaching ${targetTopic}.`,
+    `A verified 3-step framework to achieve breakthrough consistency without friction.`,
+    `Actionable metrics to monitor and track your compound progress over 14 days.`,
   ];
-  const cta = `Comment RECOVERY below and we'll send you our free 7-Day Central Nervous System Reset Guide.`;
+  let cta = `Comment "${targetTopic.toUpperCase().slice(0, 8).trim() || 'GROWTH'}" below to get our comprehensive step-by-step execution guide.`;
+
+  try {
+    const aiRes = await fetch(AI_ENDPOINT, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${AI_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: 'openai/gpt-oss-20b',
+        messages: [
+          {
+            role: 'system',
+            content: 'You are an elite Content Strategist & Copywriter Agent in ContentOS. Craft high-retention content briefs grounded in brand DNA. Respond strictly in JSON.'
+          },
+          {
+            role: 'user',
+            content: `Generate a high-converting ${req.assetType || 'video script'} brief on topic: "${targetTopic}".
+Brand: ${brand?.brandName || 'Acme Corp'}.
+Provide JSON with keys:
+- hookHeadline (punchy, high-retention title max 12 words)
+- hookVisualCue (first 3-second visual camera/screen action)
+- bodyPoints (array of 3 distinct, insightful takeaways)
+- callToAction (direct, engagement-driving CTA)`
+          }
+        ],
+        response_format: { type: 'json_object' }
+      }),
+      signal: AbortSignal.timeout(6000)
+    });
+
+    if (aiRes.ok) {
+      const data = await aiRes.json();
+      const rawContent = data.choices?.[0]?.message?.content;
+      if (rawContent) {
+        const parsed = JSON.parse(rawContent);
+        if (parsed.hookHeadline) hookHeadline = parsed.hookHeadline;
+        if (parsed.hookVisualCue) hookVisualCue = parsed.hookVisualCue;
+        if (Array.isArray(parsed.bodyPoints) && parsed.bodyPoints.length > 0) bodyPoints = parsed.bodyPoints;
+        if (parsed.callToAction) cta = parsed.callToAction;
+      }
+    }
+  } catch (e) {
+    console.warn('[runContentStrategistLoop] Dynamic AI generation fallback used:', e);
+  }
 
   const fullDraftText = `${hookHeadline}\n\n${bodyPoints.join('\n\n')}\n\n${cta}`;
 
@@ -57,14 +105,14 @@ export async function runContentStrategistLoop(req: GenerationRequest): Promise<
   // Analyze Origin Likelihood
   const origin = analyzeContentOrigin(fullDraftText);
 
-  const newAsset: GeneratedAsset = {
+  const newAsset: any = {
     id: `asset_${Date.now()}`,
     organizationId: req.orgId,
     opportunityId: req.opportunityId,
     assetType: req.assetType,
     title: `${targetTopic} (${req.assetType.replace('_', ' ').toUpperCase()})`,
     brief: {
-      objective: `Generate qualified beginner leads while positioning ${brand.brandName} as the trusted scientific authority.`,
+      objective: `Generate qualified beginner leads while positioning ${brand?.brandName || 'our brand'} as the trusted scientific authority.`,
       targetAudience: `Beginners and active adults experiencing post-workout fatigue or intimidation.`,
       hookHeadline,
       hookVisualCue,

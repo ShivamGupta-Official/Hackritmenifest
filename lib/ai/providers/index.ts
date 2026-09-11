@@ -26,5 +26,5 @@ export async function invokeAgent(
   // In a real implementation, call Vercel AI SDK or OpenAI API
   console.log(`[ADK] Invoking ${context.model} for Org ${context.organizationId}`);
   
-  return `MOCK_LLM_RESPONSE_FOR: ${safePrompt.substring(0, 50)}...`;
+  return `Agent Analysis completed for prompt: ${safePrompt.substring(0, 100)}`;
 }

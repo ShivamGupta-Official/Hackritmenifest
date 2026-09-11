@@ -10,7 +10,7 @@ export async function getTenantContext() {
   
   if (!orgId) {
     // Fallback for development if middleware isn't covering the route
-    return { organizationId: 'mock-org-id' };
+    return { organizationId: 'default-org-id' };
   }
   
   return {

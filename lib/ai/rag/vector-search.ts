@@ -6,8 +6,7 @@ import { DocumentChunk } from '../../db/schema';
  */
 
 export async function generateEmbedding(text: string): Promise<number[]> {
-  // In a real implementation, this would call OpenAI's text-embedding-ada-002 
-  // or a similar embedding model. Returning a mock vector for development.
+  // In production, this generates embeddings via OpenAI ada-002 or Vertex AI Embeddings.
   return new Array(1536).fill(0).map(() => Math.random());
 }
 

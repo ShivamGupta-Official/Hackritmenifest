@@ -51,7 +51,7 @@ export function auditContentAgainstBrandRules(
       // Check for core rule intent
       if (textLower.includes('rapid') && textLower.includes('loss')) {
         violations.push({
-          ruleId: rule.id,
+          ruleId: (rule as any)._id?.toString() || (rule as any).id || 'rule_unknown',
           ruleType: rule.ruleType,
           description: rule.content,
           detectedPhrase: 'rapid weight-loss',
