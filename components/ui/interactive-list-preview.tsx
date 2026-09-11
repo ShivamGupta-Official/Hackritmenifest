@@ -409,7 +409,7 @@ export function InteractiveListPreview({
               <div
                 key={`${item.client}-${index}`}
                 ref={(element) => setImageRef(index, element)}
-                className="invisible absolute left-[35%] top-1/2 h-90 w-78 -translate-y-1/2 rounded-xl overflow-hidden shadow-2xl"
+                className="invisible absolute left-[35%] top-1/2 h-90 w-78 -translate-y-1/2 rounded-tl-[32px] rounded-tr-[10px] rounded-br-[36px] rounded-bl-[12px] overflow-hidden shadow-[0_25px_60px_rgba(0,0,0,0.9),0_0_0_1px_rgba(255,255,255,0.15)]"
                 style={{
                   width: `${BASE_IMAGE_WIDTH_REM * safeImageSize}rem`,
                   height: `${BASE_IMAGE_HEIGHT_REM * safeImageSize}rem`,

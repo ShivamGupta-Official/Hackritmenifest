@@ -73,14 +73,33 @@ export default function LaunchpadPage() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'all' | 'dna' | 'agents' | 'blueprint' | 'radar'>('all');
+  const [isModuleDropdownOpen, setIsModuleDropdownOpen] = useState(false);
+  const [selectedModule, setSelectedModule] = useState<'all' | 'dna' | 'agents' | 'blueprint' | 'radar'>('all');
 
   const analyzerRef = useRef<HTMLDivElement>(null);
   const previewRef = useRef<HTMLDivElement>(null);
   const processRef = useRef<HTMLDivElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const moduleDropdownRef = useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+      if (moduleDropdownRef.current && !moduleDropdownRef.current.contains(event.target as Node)) {
+        setIsModuleDropdownOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const scrollToSection = (elementRef: React.RefObject<HTMLDivElement | null>) => {
     setIsDropdownOpen(false);
+    setIsModuleDropdownOpen(false);
     elementRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
@@ -129,66 +148,97 @@ export default function LaunchpadPage() {
             <Link href="/campaigns" className="text-zinc-400 hover:text-white transition-colors hidden md:inline-block">Campaigns</Link>
             
             {/* Reactive Dropdown Navigation Menu */}
-            <div className="relative">
+            <div className="relative" ref={dropdownRef}>
               <button
                 type="button"
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 hover:border-white/25 text-xs font-mono text-zinc-300 transition-all"
+                className="flex items-center gap-2 px-3.5 py-1.5 rounded-tl-xl rounded-tr-sm rounded-br-xl rounded-bl-sm bg-[#12131b] border border-white/20 hover:border-emerald-400/50 text-xs font-mono text-zinc-200 transition-all shadow-md active:scale-95"
               >
-                <span>Project Menu</span>
-                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="tracking-wide">System Menu</span>
+                <ChevronDown className={`w-3.5 h-3.5 text-zinc-400 transition-transform duration-300 ${isDropdownOpen ? 'rotate-180 text-emerald-400' : ''}`} />
               </button>
 
               {isDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-64 rounded-xl bg-zinc-950/95 border border-white/15 shadow-2xl p-2 z-50 backdrop-blur-xl animate-in fade-in slide-in-from-top-2 duration-150">
-                  <div className="px-3 py-2 border-b border-white/5 mb-1">
-                    <p className="text-[10px] font-mono uppercase tracking-wider text-zinc-500">System Navigation</p>
-                    <p className="text-xs font-medium text-white">ContentOS Intelligence</p>
+                <div className="absolute right-0 mt-3 w-80 rounded-tl-[24px] rounded-tr-[8px] rounded-br-[28px] rounded-bl-[10px] bg-[#090a0f] border border-white/20 border-t-white/30 border-l-emerald-500/40 shadow-[0_24px_60px_rgba(0,0,0,0.95),0_0_0_1px_rgba(255,255,255,0.1)] p-3 z-50 animate-in fade-in zoom-in-95 duration-150">
+                  {/* Subtle Irregular Header */}
+                  <div className="flex items-center justify-between px-3 py-2 border-b border-white/10 mb-2.5">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                      <span className="text-[10px] font-mono tracking-widest uppercase text-zinc-400">ContentOS Index</span>
+                    </div>
+                    <span className="text-[9px] font-mono px-1.5 py-0.5 rounded-tl-md rounded-br-md bg-white/10 text-zinc-300 border border-white/10">v2.4 Live</span>
                   </div>
                   
+                  {/* Irregular Item 01: Hero Ingestion Card */}
                   <button
                     onClick={() => scrollToSection(analyzerRef)}
-                    className="w-full text-left px-3 py-2 rounded-lg text-xs font-mono text-zinc-300 hover:bg-white/10 hover:text-white flex items-center gap-2.5 transition-colors"
+                    className="w-full text-left p-3 mb-2 rounded-tl-2xl rounded-tr-md rounded-br-lg rounded-bl-sm bg-[#12131d] border border-white/10 hover:border-emerald-400/50 hover:bg-[#181a27] transition-all group relative overflow-hidden"
                   >
-                    <Search className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>01. URL Reverse-Engineer</span>
+                    <div className="absolute top-0 right-0 w-16 h-16 bg-emerald-500/5 rounded-full blur-xl pointer-events-none" />
+                    <div className="flex items-center justify-between mb-1">
+                      <div className="flex items-center gap-2">
+                        <Search className="w-3.5 h-3.5 text-emerald-400" />
+                        <span className="text-xs font-semibold text-white group-hover:text-emerald-300 transition-colors">01. URL Reverse-Engineer</span>
+                      </div>
+                      <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">HOOKS</span>
+                    </div>
+                    <p className="text-[11px] text-zinc-400 leading-tight">Deconstruct 3s hooks, audio BPM & public creator metrics.</p>
                   </button>
 
-                  <button
-                    onClick={() => scrollToSection(previewRef)}
-                    className="w-full text-left px-3 py-2 rounded-lg text-xs font-mono text-zinc-300 hover:bg-white/10 hover:text-white flex items-center gap-2.5 transition-colors"
-                  >
-                    <Atom className="w-3.5 h-3.5 text-cyan-400" />
-                    <span>02. Interactive Core Modules</span>
-                  </button>
+                  {/* Asymmetric Dual Split: Items 02 & 03 */}
+                  <div className="grid grid-cols-2 gap-2 mb-2">
+                    <button
+                      onClick={() => scrollToSection(previewRef)}
+                      className="text-left p-2.5 rounded-tl-sm rounded-tr-xl rounded-br-sm rounded-bl-xl bg-[#11121a] border border-white/10 hover:border-cyan-400/50 hover:bg-[#161824] transition-all group flex flex-col justify-between"
+                    >
+                      <div className="flex items-center gap-1.5 text-cyan-400 mb-1.5">
+                        <Atom className="w-3.5 h-3.5" />
+                        <span className="text-[10px] font-mono tracking-tight text-zinc-400">[02]</span>
+                      </div>
+                      <span className="text-xs font-semibold text-white group-hover:text-cyan-300 leading-snug">Core Modules</span>
+                      <span className="text-[10px] text-zinc-400 mt-1">Interactive Hover Preview</span>
+                    </button>
 
-                  <button
-                    onClick={() => scrollToSection(processRef)}
-                    className="w-full text-left px-3 py-2 rounded-lg text-xs font-mono text-zinc-300 hover:bg-white/10 hover:text-white flex items-center gap-2.5 transition-colors"
-                  >
-                    <Workflow className="w-3.5 h-3.5 text-amber-400" />
-                    <span>03. Operating Loop (01-04)</span>
-                  </button>
+                    <button
+                      onClick={() => scrollToSection(processRef)}
+                      className="text-left p-2.5 rounded-tl-xl rounded-tr-sm rounded-br-xl rounded-bl-sm bg-[#11121a] border border-white/10 hover:border-amber-400/50 hover:bg-[#161824] transition-all group flex flex-col justify-between"
+                    >
+                      <div className="flex items-center gap-1.5 text-amber-400 mb-1.5">
+                        <Workflow className="w-3.5 h-3.5" />
+                        <span className="text-[10px] font-mono tracking-tight text-zinc-400">[03]</span>
+                      </div>
+                      <span className="text-xs font-semibold text-white group-hover:text-amber-300 leading-snug">Operating Loop</span>
+                      <span className="text-[10px] text-zinc-400 mt-1">From URL to Blueprint</span>
+                    </button>
+                  </div>
 
-                  <div className="my-1 border-t border-white/5" />
+                  {/* Irregular Offset Footer Items */}
+                  <div className="space-y-1.5 pt-1 border-t border-white/10">
+                    <Link
+                      href="/demo"
+                      onClick={() => setIsDropdownOpen(false)}
+                      className="w-full text-left px-3 py-2 rounded-tl-full rounded-br-full rounded-tr-md rounded-bl-md bg-[#13141f] border border-amber-500/20 hover:border-amber-400/60 hover:bg-[#1a1b2a] flex items-center justify-between text-xs font-mono text-amber-300 transition-all group"
+                    >
+                      <div className="flex items-center gap-2">
+                        <Zap className="w-3.5 h-3.5 text-amber-400 group-hover:scale-110 transition-transform" />
+                        <span>⚡ Mock Data Lab</span>
+                      </div>
+                      <span className="text-[9px] px-1.5 py-0.5 rounded bg-amber-400/10 text-amber-300 border border-amber-400/20 -rotate-1">TEST</span>
+                    </Link>
 
-                  <Link
-                    href="/demo"
-                    onClick={() => setIsDropdownOpen(false)}
-                    className="w-full text-left px-3 py-2 rounded-lg text-xs font-mono text-amber-400 hover:bg-amber-400/10 flex items-center gap-2.5 transition-colors"
-                  >
-                    <Zap className="w-3.5 h-3.5" />
-                    <span>⚡ Mock Data Lab</span>
-                  </Link>
-
-                  <Link
-                    href="/brain"
-                    onClick={() => setIsDropdownOpen(false)}
-                    className="w-full text-left px-3 py-2 rounded-lg text-xs font-mono text-zinc-400 hover:bg-white/10 hover:text-white flex items-center gap-2.5 transition-colors"
-                  >
-                    <BrainCircuit className="w-3.5 h-3.5 text-purple-400" />
-                    <span>Brand Persona Brain</span>
-                  </Link>
+                    <Link
+                      href="/brain"
+                      onClick={() => setIsDropdownOpen(false)}
+                      className="w-full text-left px-3 py-2 rounded-tl-md rounded-tr-lg rounded-br-2xl rounded-bl-xl bg-[#11121a] border border-white/10 hover:border-purple-400/50 hover:bg-[#171825] flex items-center justify-between text-xs font-mono text-zinc-300 hover:text-white transition-all group"
+                    >
+                      <div className="flex items-center gap-2">
+                        <BrainCircuit className="w-3.5 h-3.5 text-purple-400 group-hover:scale-110 transition-transform" />
+                        <span>Brand Persona Brain</span>
+                      </div>
+                      <ArrowRight className="w-3 h-3 text-zinc-500 group-hover:text-white group-hover:translate-x-0.5 transition-all" />
+                    </Link>
+                  </div>
                 </div>
               )}
             </div>
@@ -269,28 +319,80 @@ export default function LaunchpadPage() {
               </p>
             </div>
 
-            {/* Reactive Tab Filter */}
-            <div className="flex items-center gap-1.5 p-1 rounded-lg bg-black/50 border border-white/10 text-xs font-mono">
-              <span className="text-zinc-500 text-[11px] px-2">HIGHLIGHT:</span>
-              <button
-                onClick={() => setActiveTab('all')}
-                className={`px-2.5 py-1 rounded-md transition-colors ${activeTab === 'all' ? 'bg-white text-black font-semibold' : 'text-zinc-400 hover:text-white'}`}
-              >
-                All Systems
-              </button>
+            {/* Interactive Irregular Dropdown Filter Selector */}
+            <div className="flex items-center gap-2 relative" ref={moduleDropdownRef}>
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setIsModuleDropdownOpen(!isModuleDropdownOpen)}
+                  className="flex items-center gap-2.5 px-3.5 py-2 rounded-tl-2xl rounded-tr-sm rounded-br-2xl rounded-bl-sm bg-[#12131d] border border-white/20 hover:border-cyan-400/50 text-xs font-mono text-zinc-200 transition-all shadow-lg active:scale-95"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
+                  <span className="tracking-wide">
+                    {selectedModule === 'all' && 'All Core Modules'}
+                    {selectedModule === 'dna' && '01 // Content DNA'}
+                    {selectedModule === 'agents' && '02 // Agent Swarm'}
+                    {selectedModule === 'blueprint' && '03 // Growth Blueprint'}
+                    {selectedModule === 'radar' && '04 // Trend Radar'}
+                  </span>
+                  <ChevronDown className={`w-3.5 h-3.5 text-zinc-400 transition-transform duration-300 ${isModuleDropdownOpen ? 'rotate-180 text-cyan-400' : ''}`} />
+                </button>
+
+                {isModuleDropdownOpen && (
+                  <div className="absolute right-0 mt-2.5 w-72 rounded-tl-[22px] rounded-tr-[6px] rounded-br-[26px] rounded-bl-[10px] bg-[#0a0b10] border border-white/20 border-t-white/30 border-l-cyan-400/40 shadow-[0_20px_50px_rgba(0,0,0,0.95),0_0_0_1px_rgba(255,255,255,0.1)] p-2.5 z-40 animate-in fade-in zoom-in-95 duration-150">
+                    <div className="flex items-center justify-between px-2.5 py-1.5 border-b border-white/10 mb-2">
+                      <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-400">Filter Engine</span>
+                      <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">Reactive</span>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      {[
+                        { id: 'all', label: 'All 5 Core Engines', code: 'FULL' },
+                        { id: 'dna', label: 'Content DNA Engine', code: 'DNA' },
+                        { id: 'agents', label: 'AI Agent Swarm', code: 'LLM' },
+                        { id: 'blueprint', label: 'Growth Blueprint', code: '7-DAY' },
+                        { id: 'radar', label: 'Opportunity Radar', code: 'RADAR' },
+                      ].map((item, idx) => (
+                        <button
+                          key={item.id}
+                          onClick={() => {
+                            setSelectedModule(item.id as any);
+                            setIsModuleDropdownOpen(false);
+                          }}
+                          className={`w-full text-left px-3 py-2 flex items-center justify-between text-xs font-mono transition-all ${
+                            idx % 2 === 0
+                              ? 'rounded-tl-xl rounded-tr-sm rounded-br-lg rounded-bl-sm'
+                              : 'rounded-tl-sm rounded-tr-xl rounded-br-sm rounded-bl-lg'
+                          } ${
+                            selectedModule === item.id
+                              ? 'bg-[#181a29] text-white border border-cyan-400/50 shadow-md font-semibold'
+                              : 'bg-[#101118] text-zinc-400 hover:text-white hover:bg-[#151722] border border-white/5'
+                          }`}
+                        >
+                          <span className="truncate">{item.label}</span>
+                          <span className="text-[9px] px-1.5 py-0.5 rounded bg-white/5 border border-white/10 text-zinc-400">
+                            {item.code}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
               <button
                 onClick={() => scrollToSection(analyzerRef)}
-                className="px-2.5 py-1 rounded-md text-emerald-400 hover:bg-emerald-500/10 transition-colors"
+                className="px-3.5 py-2 rounded-tl-sm rounded-tr-xl rounded-br-sm rounded-bl-xl bg-[#12131d] border border-emerald-500/30 hover:border-emerald-400 text-xs font-mono text-emerald-400 hover:bg-emerald-500/10 transition-all shadow-sm"
               >
-                Try Extraction →
+                Launch URL Analysis →
               </button>
             </div>
           </div>
 
-          {/* InteractiveListPreview Component */}
-          <div className="rounded-2xl border border-white/10 overflow-hidden shadow-2xl bg-black/40">
+          {/* InteractiveListPreview Component inside Irregular Solid-Opacity Frame */}
+          <div className="rounded-tl-[32px] rounded-tr-[12px] rounded-br-[36px] rounded-bl-[14px] border border-white/15 border-t-white/30 border-l-cyan-500/30 overflow-hidden shadow-[0_25px_70px_rgba(0,0,0,0.95)] bg-[#090a0f]">
             <InteractiveListPreview
-              bgColor="#09090b"
+              bgColor="#090a0f"
               imageSize={1.1}
               smoothness={0.3}
               className="py-4"
