@@ -72,6 +72,9 @@ export default function LaunchpadPage() {
             <Link href="/intelligence" className="text-zinc-400 hover:text-white transition-colors">Content DNA</Link>
             <Link href="/radar" className="text-zinc-400 hover:text-white transition-colors">Trend Radar</Link>
             <Link href="/campaigns" className="text-zinc-400 hover:text-white transition-colors">Campaigns</Link>
+            <Link href="/demo" className="text-amber-400 hover:text-amber-300 transition-colors font-mono text-xs flex items-center gap-1">
+              ⚡ Demo Lab
+            </Link>
             <Link href="/dashboard" className="btn-vanilla !py-1.5 !px-3.5 !text-xs">
               Enter Workspace
             </Link>
@@ -82,9 +85,17 @@ export default function LaunchpadPage() {
       {/* Hero Section */}
       <main className="max-w-6xl mx-auto px-6 pt-16 pb-24 flex flex-col items-center text-center">
         {/* Release Pill */}
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.03] border border-white/10 text-xs font-mono text-zinc-300 mb-8 shadow-inner">
-          <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-          <span>PROVENANCE-AWARE SOCIAL REVERSE-ENGINEERING</span>
+        <div className="flex flex-wrap items-center justify-center gap-3 mb-8">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.03] border border-white/10 text-xs font-mono text-zinc-300 shadow-inner">
+            <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+            <span>PROVENANCE-AWARE SOCIAL REVERSE-ENGINEERING</span>
+          </div>
+          <Link 
+            href="/demo" 
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-xs font-mono text-amber-300 hover:bg-amber-500/20 transition-all"
+          >
+            <span>Try Mock Data Lab →</span>
+          </Link>
         </div>
 
         {/* Hero Title */}

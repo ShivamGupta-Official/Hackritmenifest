@@ -340,6 +340,7 @@ export function SidebarNav({
         { id: 'studio', title: 'Content Studio', icon: Blocks, href: '/studio' },
         { id: 'campaigns', title: 'Campaign Studio', icon: FolderKanban, href: '/campaigns' },
         { id: 'brain', title: 'Brand Brain', icon: Terminal, href: '/brain' },
+        { id: 'demo', title: 'Mock Data Lab', icon: Zap, href: '/demo', badge: 'SANDBOX' },
       ]
     },
     {
@@ -381,7 +382,8 @@ export function SidebarNav({
     { title: 'Opportunity Radar', desc: 'Search momentum and emerging content gaps', href: '/radar', icon: Globe },
     { title: 'Content Studio', desc: 'Multi-agent Creator ↔ Critic brief generator', href: '/studio', icon: Blocks },
     { title: 'Campaign Studio', desc: 'Ad conversion metrics and landing page alignment', href: '/campaigns', icon: FolderKanban },
-    { title: 'Brand Brain', desc: 'Strict directives, personas, and semantic knowledge base', href: '/brain', icon: Terminal }
+    { title: 'Brand Brain', desc: 'Strict directives, personas, and semantic knowledge base', href: '/brain', icon: Terminal },
+    { title: 'Mock Data Lab', desc: 'One-click demo profiles, sample hooks, and instant sandbox', href: '/demo', icon: Zap }
   ];
 
   const filteredPages = searchablePages.filter(p => 
