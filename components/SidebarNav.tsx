@@ -19,6 +19,7 @@ import {
   Terminal,
   Blocks,
   Command,
+  Sparkles,
   X
 } from 'lucide-react';
 import Link from 'next/link';
@@ -39,13 +40,15 @@ export type NavGroupData = {
   items: NavItemData[];
 };
 
-const mockNavGroups: NavGroupData[] = [
+const sidebarNavGroups: NavGroupData[] = [
   {
     items: [
       { id: 'search', title: 'Search', icon: Search, shortcut: '⌘K' },
       { id: 'home', title: 'Executive Overview', icon: LayoutDashboard, href: '/dashboard' },
       { id: 'intelligence', title: 'Content Intelligence', icon: Activity, href: '/intelligence' },
+      { id: 'blueprint', title: 'Growth Blueprint', icon: Sparkles, href: '/blueprint' },
       { id: 'radar', title: 'Opportunity Radar', icon: Globe, href: '/radar' },
+      { id: 'studio', title: 'Content Studio', icon: Blocks, href: '/studio' },
       { id: 'campaigns', title: 'Campaign Studio', icon: FolderKanban, href: '/campaigns' },
       { id: 'brain', title: 'Brand Brain', icon: Terminal, href: '/brain' },
     ]
@@ -69,7 +72,7 @@ const mockNavGroups: NavGroupData[] = [
   },
 ];
 
-const mockBottomItems: NavItemData[] = [
+const sidebarBottomItems: NavItemData[] = [
   { id: 'settings', title: 'Settings', icon: Settings, shortcut: '⌘,' },
   { id: 'logout', title: 'Log out', icon: LogOut },
 ];
@@ -240,7 +243,7 @@ export function SidebarNav({
   const [internalId, setInternalId] = useState('home');
 
   // Match active path
-  const allItems = [...mockNavGroups.flatMap(g => g.items), ...mockBottomItems];
+  const allItems = [...sidebarNavGroups.flatMap(g => g.items), ...sidebarBottomItems];
   const flatItems = flattenItems(allItems);
   const activeItem = flatItems.find(item => item.href === pathname);
   const currentId = activeItem ? activeItem.id : internalId;
@@ -250,7 +253,7 @@ export function SidebarNav({
       <WorkspaceSwitcher selected={activeWorkspace} onSelect={onWorkspaceSelect} />
 
       <div className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] flex flex-col gap-4 mt-2">
-        {mockNavGroups.map((group, idx) => (
+        {sidebarNavGroups.map((group, idx) => (
           <div key={idx} className="flex flex-col gap-0.5">
             {group.heading && (
               <span className="px-2.5 mb-1 text-[11px] font-semibold tracking-wider text-muted-foreground/50 uppercase">
@@ -270,7 +273,7 @@ export function SidebarNav({
       </div>
 
       <div className="mt-auto pt-4 border-t border-border/50 flex flex-col gap-0.5">
-        {mockBottomItems.map(item => (
+        {sidebarBottomItems.map(item => (
           <NavItem 
             key={item.id} 
             item={item} 

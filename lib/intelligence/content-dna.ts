@@ -1,20 +1,30 @@
-import { ContentItem, ContentDNASummary } from '@/lib/db/schema';
+import { IContentItem } from '@/lib/db/schema';
 import {
   calculateMedian,
   calculateOutperformanceMultiplier,
   calculateConfidenceTier,
 } from '@/lib/analytics/metrics';
 
+export interface DNASummaryItem {
+  dimension: 'hook' | 'format' | 'duration' | 'topic' | 'tone';
+  name: string;
+  sampleSize: number;
+  medianEngagementRate: number;
+  outperformanceMultiplier: number;
+  confidence: 'high' | 'medium' | 'low';
+  isWinningPattern: boolean;
+}
+
 export interface ContentDNAAnalysisResult {
   baselineMedianEngagement: number;
   totalContentAnalyzed: number;
   contentHealthScore: number; // 0 - 100
   dimensions: {
-    hooks: ContentDNASummary[];
-    formats: ContentDNASummary[];
-    durations: ContentDNASummary[];
-    topics: ContentDNASummary[];
-    tones: ContentDNASummary[];
+    hooks: DNASummaryItem[];
+    formats: DNASummaryItem[];
+    durations: DNASummaryItem[];
+    topics: DNASummaryItem[];
+    tones: DNASummaryItem[];
   };
   topWinningPattern: {
     hook: string;
@@ -32,7 +42,7 @@ export interface ContentDNAAnalysisResult {
   };
 }
 
-export function analyzeContentDNA(items: ContentItem[]): ContentDNAAnalysisResult {
+export function analyzeContentDNA(items: IContentItem[]): ContentDNAAnalysisResult {
   if (!items || items.length === 0) {
     return {
       baselineMedianEngagement: 0,
@@ -51,8 +61,8 @@ export function analyzeContentDNA(items: ContentItem[]): ContentDNAAnalysisResul
   // Helper to group by a property and compute statistics
   function groupDimension(
     dimension: 'hook' | 'format' | 'duration' | 'topic' | 'tone',
-    keyExtractor: (i: ContentItem) => string
-  ): ContentDNASummary[] {
+    keyExtractor: (i: IContentItem) => string
+  ): DNASummaryItem[] {
     const groups: { [key: string]: number[] } = {};
     for (const item of items) {
       const key = keyExtractor(item);

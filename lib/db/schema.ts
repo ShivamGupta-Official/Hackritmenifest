@@ -16,7 +16,7 @@ const OrganizationSchema = new Schema<IOrganization>({
 
 // Workspace
 export interface IWorkspace extends Document {
-  organizationId: mongoose.Types.ObjectId;
+  organizationId: any;
   name: string;
   slug: string;
   industry?: string;
@@ -24,7 +24,7 @@ export interface IWorkspace extends Document {
   createdAt: Date;
 }
 const WorkspaceSchema = new Schema<IWorkspace>({
-  organizationId: { type: Schema.Types.ObjectId, ref: 'Organization', required: true },
+  organizationId: { type: Schema.Types.Mixed, ref: 'Organization', required: true },
   name: { type: String, required: true },
   slug: { type: String, required: true },
   industry: String,
@@ -34,8 +34,8 @@ const WorkspaceSchema = new Schema<IWorkspace>({
 
 // BrandProfile
 export interface IBrandProfile extends Document {
-  organizationId: mongoose.Types.ObjectId;
-  workspaceId: mongoose.Types.ObjectId;
+  organizationId: any;
+  workspaceId: any;
   brandName: string;
   tagline?: string;
   mission?: string;
@@ -43,8 +43,8 @@ export interface IBrandProfile extends Document {
   positioning?: string;
 }
 const BrandProfileSchema = new Schema<IBrandProfile>({
-  organizationId: { type: Schema.Types.ObjectId, ref: 'Organization', required: true },
-  workspaceId: { type: Schema.Types.ObjectId, ref: 'Workspace', required: true },
+  organizationId: { type: Schema.Types.Mixed, ref: 'Organization', required: true },
+  workspaceId: { type: Schema.Types.Mixed, ref: 'Workspace', required: true },
   brandName: { type: String, required: true },
   tagline: String,
   mission: String,
@@ -54,16 +54,16 @@ const BrandProfileSchema = new Schema<IBrandProfile>({
 
 // BrandRule
 export interface IBrandRule extends Document {
-  organizationId: mongoose.Types.ObjectId;
-  workspaceId: mongoose.Types.ObjectId;
+  organizationId: any;
+  workspaceId: any;
   ruleType: 'forbidden_claim' | 'required_disclaimer' | 'tone_rule' | 'vocabulary';
   content: string;
   severity: 'strict' | 'warning';
   isActive: boolean;
 }
 const BrandRuleSchema = new Schema<IBrandRule>({
-  organizationId: { type: Schema.Types.ObjectId, ref: 'Organization', required: true },
-  workspaceId: { type: Schema.Types.ObjectId, ref: 'Workspace', required: true },
+  organizationId: { type: Schema.Types.Mixed, ref: 'Organization', required: true },
+  workspaceId: { type: Schema.Types.Mixed, ref: 'Workspace', required: true },
   ruleType: { type: String, enum: ['forbidden_claim', 'required_disclaimer', 'tone_rule', 'vocabulary'], required: true },
   content: { type: String, required: true },
   severity: { type: String, enum: ['strict', 'warning'], default: 'strict' },
@@ -72,7 +72,7 @@ const BrandRuleSchema = new Schema<IBrandRule>({
 
 // TargetAudience
 export interface ITargetAudience extends Document {
-  organizationId: mongoose.Types.ObjectId;
+  organizationId: any;
   name: string;
   level: 'beginner' | 'intermediate' | 'advanced';
   painPoints: string[];
@@ -80,7 +80,7 @@ export interface ITargetAudience extends Document {
   objections: string[];
 }
 const TargetAudienceSchema = new Schema<ITargetAudience>({
-  organizationId: { type: Schema.Types.ObjectId, ref: 'Organization', required: true },
+  organizationId: { type: Schema.Types.Mixed, ref: 'Organization', required: true },
   name: { type: String, required: true },
   level: { type: String, enum: ['beginner', 'intermediate', 'advanced'], default: 'beginner' },
   painPoints: [String],
@@ -90,14 +90,14 @@ const TargetAudienceSchema = new Schema<ITargetAudience>({
 
 // HumanInstruction
 export interface IHumanInstruction extends Document {
-  organizationId: mongoose.Types.ObjectId;
+  organizationId: any;
   author: string;
   instruction: string;
   category: 'strategy' | 'creative' | 'safety';
   createdAt: Date;
 }
 const HumanInstructionSchema = new Schema<IHumanInstruction>({
-  organizationId: { type: Schema.Types.ObjectId, ref: 'Organization', required: true },
+  organizationId: { type: Schema.Types.Mixed, ref: 'Organization', required: true },
   author: { type: String, required: true },
   instruction: { type: String, required: true },
   category: { type: String, enum: ['strategy', 'creative', 'safety'], default: 'strategy' },
@@ -106,8 +106,8 @@ const HumanInstructionSchema = new Schema<IHumanInstruction>({
 
 // ContentItem
 export interface IContentItem extends Document {
-  organizationId: mongoose.Types.ObjectId;
-  workspaceId: mongoose.Types.ObjectId;
+  organizationId: any;
+  workspaceId: any;
   platform: 'instagram' | 'youtube' | 'blog' | 'linkedin' | 'tiktok';
   contentType: 'reel' | 'post' | 'blog' | 'carousel';
   title: string;
@@ -137,10 +137,12 @@ export interface IContentItem extends Document {
   saveRate: number;
   ctr: number;
   outperformanceMultiplier: number;
+  permalink?: string;
+  contentHash?: string;
 }
 const ContentItemSchema = new Schema<IContentItem>({
-  organizationId: { type: Schema.Types.ObjectId, ref: 'Organization', required: true },
-  workspaceId: { type: Schema.Types.ObjectId, ref: 'Workspace', required: true },
+  organizationId: { type: Schema.Types.Mixed, ref: 'Organization', required: true },
+  workspaceId: { type: Schema.Types.Mixed, ref: 'Workspace', required: true },
   platform: { type: String, required: true },
   contentType: { type: String, required: true },
   title: String,
@@ -169,7 +171,9 @@ const ContentItemSchema = new Schema<IContentItem>({
   engagementRate: { type: Number, default: 0 },
   saveRate: { type: Number, default: 0 },
   ctr: { type: Number, default: 0 },
-  outperformanceMultiplier: { type: Number, default: 1 }
+  outperformanceMultiplier: { type: Number, default: 1 },
+  permalink: String,
+  contentHash: { type: String, index: true }
 });
 
 // ContentDNASummary
@@ -216,7 +220,7 @@ const TrendSignalSchema = new Schema<ITrendSignal>({
 
 // OpportunityScorecard
 export interface IOpportunityScorecard extends Document {
-  organizationId: mongoose.Types.ObjectId;
+  organizationId: any;
   trendTopic: string;
   recommendedFormat: string;
   opportunityScore: number;
@@ -235,7 +239,7 @@ export interface IOpportunityScorecard extends Document {
   status: 'active' | 'in_progress' | 'published' | 'dismissed';
 }
 const OpportunityScorecardSchema = new Schema<IOpportunityScorecard>({
-  organizationId: { type: Schema.Types.ObjectId, ref: 'Organization', required: true },
+  organizationId: { type: Schema.Types.Mixed, ref: 'Organization', required: true },
   trendTopic: String,
   recommendedFormat: String,
   opportunityScore: Number,
@@ -251,7 +255,7 @@ const OpportunityScorecardSchema = new Schema<IOpportunityScorecard>({
 
 // CampaignData
 export interface ICampaignData extends Document {
-  organizationId: mongoose.Types.ObjectId;
+  organizationId: any;
   name: string;
   platform: 'meta_ads' | 'google_ads';
   spendCents: number;
@@ -268,7 +272,7 @@ export interface ICampaignData extends Document {
   actionRecommendation: string;
 }
 const CampaignDataSchema = new Schema<ICampaignData>({
-  organizationId: { type: Schema.Types.ObjectId, ref: 'Organization', required: true },
+  organizationId: { type: Schema.Types.Mixed, ref: 'Organization', required: true },
   name: String,
   platform: String,
   spendCents: Number,
@@ -287,8 +291,8 @@ const CampaignDataSchema = new Schema<ICampaignData>({
 
 // GeneratedAsset
 export interface IGeneratedAsset extends Document {
-  organizationId: mongoose.Types.ObjectId;
-  opportunityId?: mongoose.Types.ObjectId;
+  organizationId: any;
+  opportunityId?: any;
   assetType: 'reel_script' | 'blog_brief' | 'carousel' | 'ad_variant';
   title: string;
   brief: {
@@ -318,8 +322,8 @@ export interface IGeneratedAsset extends Document {
   createdAt: Date;
 }
 const GeneratedAssetSchema = new Schema<IGeneratedAsset>({
-  organizationId: { type: Schema.Types.ObjectId, ref: 'Organization', required: true },
-  opportunityId: { type: Schema.Types.ObjectId, ref: 'OpportunityScorecard' },
+  organizationId: { type: Schema.Types.Mixed, ref: 'Organization', required: true },
+  opportunityId: { type: Schema.Types.Mixed, ref: 'OpportunityScorecard' },
   assetType: String,
   title: String,
   brief: Object,
@@ -334,9 +338,9 @@ const GeneratedAssetSchema = new Schema<IGeneratedAsset>({
 
 // DocumentChunk (for Vector Search)
 export interface IDocumentChunk extends Document {
-  organizationId: mongoose.Types.ObjectId;
-  workspaceId: mongoose.Types.ObjectId;
-  contentItemId?: mongoose.Types.ObjectId;
+  organizationId: any;
+  workspaceId: any;
+  contentItemId?: any;
   chunkType: string;
   chunkText: string;
   metadata: any;
@@ -344,13 +348,67 @@ export interface IDocumentChunk extends Document {
   createdAt: Date;
 }
 const DocumentChunkSchema = new Schema<IDocumentChunk>({
-  organizationId: { type: Schema.Types.ObjectId, ref: 'Organization', required: true },
-  workspaceId: { type: Schema.Types.ObjectId, ref: 'Workspace', required: true },
-  contentItemId: { type: Schema.Types.ObjectId, ref: 'ContentItem' },
+  organizationId: { type: Schema.Types.Mixed, ref: 'Organization', required: true },
+  workspaceId: { type: Schema.Types.Mixed, ref: 'Workspace', required: true },
+  contentItemId: { type: Schema.Types.Mixed, ref: 'ContentItem' },
   chunkType: String,
   chunkText: String,
   metadata: Object,
   embedding: { type: [Number], required: true }, // For Atlas Vector Search
+  createdAt: { type: Date, default: Date.now }
+});
+
+// ConnectedAccount (for Authorized Customer Accounts & OAuth Integrations)
+export interface IConnectedAccount extends Document {
+  organizationId: any;
+  workspaceId: any;
+  platform: 'instagram' | 'tiktok' | 'youtube' | 'linkedin' | 'meta_ads' | 'google_ads';
+  accountId: string;
+  accountName: string;
+  accountHandle: string;
+  avatarUrl?: string;
+  status: 'active' | 'expired' | 'revoked' | 'error';
+  tokenExpiresAt?: Date;
+  scopes: string[];
+  lastSyncedAt?: Date;
+  syncFrequencyHours: number;
+  metadata?: Record<string, any>;
+  createdAt: Date;
+}
+const ConnectedAccountSchema = new Schema<IConnectedAccount>({
+  organizationId: { type: Schema.Types.Mixed, ref: 'Organization', required: true },
+  workspaceId: { type: Schema.Types.Mixed, ref: 'Workspace', required: true },
+  platform: { type: String, required: true },
+  accountId: { type: String, required: true },
+  accountName: { type: String, required: true },
+  accountHandle: { type: String, required: true },
+  avatarUrl: String,
+  status: { type: String, enum: ['active', 'expired', 'revoked', 'error'], default: 'active' },
+  tokenExpiresAt: Date,
+  scopes: [String],
+  lastSyncedAt: Date,
+  syncFrequencyHours: { type: Number, default: 24 },
+  metadata: Object,
+  createdAt: { type: Date, default: Date.now }
+});
+
+// RawScrapedSnapshot (persists unparsed API / RSS payloads for auditability & offline re-parsing)
+export interface IRawScrapedSnapshot extends Document {
+  targetUrl: string;
+  platform: 'instagram' | 'youtube' | 'tiktok' | 'web';
+  accountHandle: string;
+  rawPayload: any;
+  payloadHash: string;
+  extractedCount: number;
+  createdAt: Date;
+}
+const RawScrapedSnapshotSchema = new Schema<IRawScrapedSnapshot>({
+  targetUrl: { type: String, required: true },
+  platform: { type: String, required: true },
+  accountHandle: { type: String, required: true },
+  rawPayload: { type: Schema.Types.Mixed, required: true },
+  payloadHash: { type: String, required: true, index: true },
+  extractedCount: { type: Number, default: 0 },
   createdAt: { type: Date, default: Date.now }
 });
 
@@ -368,3 +426,5 @@ export const OpportunityScorecard = mongoose.models.OpportunityScorecard || mong
 export const CampaignData = mongoose.models.CampaignData || mongoose.model<ICampaignData>('CampaignData', CampaignDataSchema);
 export const GeneratedAsset = mongoose.models.GeneratedAsset || mongoose.model<IGeneratedAsset>('GeneratedAsset', GeneratedAssetSchema);
 export const DocumentChunk = mongoose.models.DocumentChunk || mongoose.model<IDocumentChunk>('DocumentChunk', DocumentChunkSchema);
+export const ConnectedAccount = mongoose.models.ConnectedAccount || mongoose.model<IConnectedAccount>('ConnectedAccount', ConnectedAccountSchema);
+export const RawScrapedSnapshot = mongoose.models.RawScrapedSnapshot || mongoose.model<IRawScrapedSnapshot>('RawScrapedSnapshot', RawScrapedSnapshotSchema);

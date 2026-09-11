@@ -1,19 +1,6 @@
-import {
-  Organization,
-  Workspace,
-  BrandProfile,
-  BrandRule,
-  TargetAudience,
-  HumanInstruction,
-  ContentItem,
-  TrendSignal,
-  OpportunityScorecard,
-  CampaignData,
-  GeneratedAsset,
-} from './schema';
 import { calculateEngagementRate, calculateSaveRate, calculateCTR } from '@/lib/analytics/metrics';
 
-export const SEED_ORGANIZATION: Organization = {
+export const SEED_ORGANIZATION: any = {
   id: 'org_example_fitness',
   name: 'Example Fitness',
   slug: 'example-fitness',
@@ -21,7 +8,7 @@ export const SEED_ORGANIZATION: Organization = {
   createdAt: '2026-01-10T08:00:00Z',
 };
 
-export const SEED_WORKSPACE: Workspace = {
+export const SEED_WORKSPACE: any = {
   id: 'ws_fitness_main',
   organizationId: 'org_example_fitness',
   name: 'Main Brand Workspace',
@@ -31,7 +18,7 @@ export const SEED_WORKSPACE: Workspace = {
   createdAt: '2026-01-10T08:00:00Z',
 };
 
-export const SEED_BRAND: BrandProfile = {
+export const SEED_BRAND: any = {
   id: 'brand_001',
   organizationId: 'org_example_fitness',
   workspaceId: 'ws_fitness_main',
@@ -42,7 +29,7 @@ export const SEED_BRAND: BrandProfile = {
   positioning: 'The antidote to toxic fitness culture: sustainable, injury-free progress backed by sports science.',
 };
 
-export const SEED_BRAND_RULES: BrandRule[] = [
+export const SEED_BRAND_RULES: any[] = [
   {
     id: 'rule_01',
     organizationId: 'org_example_fitness',
@@ -72,7 +59,7 @@ export const SEED_BRAND_RULES: BrandRule[] = [
   },
 ];
 
-export const SEED_AUDIENCES: TargetAudience[] = [
+export const SEED_AUDIENCES: any[] = [
   {
     id: 'aud_01',
     organizationId: 'org_example_fitness',
@@ -96,7 +83,7 @@ export const SEED_AUDIENCES: TargetAudience[] = [
   },
 ];
 
-export const SEED_HUMAN_INSTRUCTIONS: HumanInstruction[] = [
+export const SEED_HUMAN_INSTRUCTIONS: any[] = [
   {
     id: 'inst_01',
     organizationId: 'org_example_fitness',
@@ -116,8 +103,8 @@ export const SEED_HUMAN_INSTRUCTIONS: HumanInstruction[] = [
 ];
 
 // Generate 110 Realistic Content Items (Instagram Reels, Carousels, Blogs, YouTube)
-function generateSeedContent(): ContentItem[] {
-  const items: ContentItem[] = [];
+function generateSeedContent(): any[] {
+  const items: any[] = [];
   const baseDate = new Date('2026-01-15T00:00:00Z');
 
   const topicTemplates = [
@@ -191,7 +178,7 @@ function generateSeedContent(): ContentItem[] {
 
 export const SEED_CONTENT_ITEMS = generateSeedContent();
 
-export const SEED_TRENDS: TrendSignal[] = [
+export const SEED_TRENDS: any[] = [
   {
     id: 'trend_01',
     topic: 'Zone 2 Cardio for Athletic Recovery',
@@ -227,7 +214,7 @@ export const SEED_TRENDS: TrendSignal[] = [
   },
 ];
 
-export const SEED_OPPORTUNITY_SCORES: OpportunityScorecard[] = [
+export const SEED_OPPORTUNITY_SCORES: any[] = [
   {
     id: 'opp_01',
     organizationId: 'org_example_fitness',
@@ -290,7 +277,7 @@ export const SEED_OPPORTUNITY_SCORES: OpportunityScorecard[] = [
   },
 ];
 
-export const SEED_CAMPAIGNS: CampaignData[] = [
+export const SEED_CAMPAIGNS: any[] = [
   {
     id: 'camp_01',
     organizationId: 'org_example_fitness',
@@ -329,7 +316,7 @@ export const SEED_CAMPAIGNS: CampaignData[] = [
   },
 ];
 
-export const SEED_GENERATED_ASSETS: GeneratedAsset[] = [
+export const SEED_GENERATED_ASSETS: any[] = [
   {
     id: 'asset_001',
     organizationId: 'org_example_fitness',
