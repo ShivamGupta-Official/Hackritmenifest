@@ -29,41 +29,61 @@ import InteractiveListPreview from '@/components/ui/interactive-list-preview';
 
 const HERO_STREAM_IMAGES = [
   {
-    src: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&auto=format&fit=crop&q=80",
-    alt: "Abstract 3D motion gradient",
+    src: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&auto=format&fit=crop&q=80",
+    alt: "Glow Recipe Glass Skin Hook",
+    creator: "@glowrecipe",
+    hook: "Stop washing your face with hot water if you want glass skin.",
+    multiplier: "+3.1× MEDIAN",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=800&auto=format&fit=crop&q=80",
+    alt: "Gymshark Recovery Protocol",
+    creator: "@gymshark",
+    hook: "The 5-minute cooldown protocol that cuts muscle soreness in half.",
+    multiplier: "+2.8× VIRAL",
   },
   {
     src: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&auto=format&fit=crop&q=80",
-    alt: "Growth analytics & data telemetry",
+    alt: "Notion Startup Workspace",
+    creator: "@notionhq",
+    hook: "How I organized my entire startup in 3 dashboard views.",
+    multiplier: "+4.2× VIRAL",
   },
   {
-    src: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&auto=format&fit=crop&q=80",
-    alt: "High-retention creator hook frame",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?w=800&auto=format&fit=crop&q=80",
-    alt: "AI agent neural swarm visualization",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&auto=format&fit=crop&q=80",
-    alt: "Viral reaction & engagement moment",
+    src: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&auto=format&fit=crop&q=80",
+    alt: "Zomato Viral Street Food Reel",
+    creator: "@zomato",
+    hook: "Kya aapne ye secret menu item kabhi try kiya hai?",
+    multiplier: "+3.5× VIRAL",
   },
   {
     src: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&auto=format&fit=crop&q=80",
-    alt: "Retro-futuristic studio equipment",
+    alt: "Zerodha Wealth Compounding",
+    creator: "@zerodha",
+    hook: "The compounding math they never teach you in business school.",
+    multiplier: "+2.9× RETENTION",
   },
   {
-    src: "https://images.unsplash.com/photo-1618005198919-d3d4b5a92ead?w=800&auto=format&fit=crop&q=80",
-    alt: "Flowing velocity vectors",
+    src: "https://images.unsplash.com/photo-1538805060514-97d9cc17730c?w=800&auto=format&fit=crop&q=80",
+    alt: "Cult.fit Mobility Drill",
+    creator: "@cultfit",
+    hook: "Fix your squat depth with this 10-second hip mobility drill.",
+    multiplier: "+2.5× VIRAL",
   },
   {
-    src: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=800&auto=format&fit=crop&q=80",
-    alt: "Content strategy workshop",
+    src: "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=800&auto=format&fit=crop&q=80",
+    alt: "Minimalist Skincare Barrier Hook",
+    creator: "@bemine",
+    hook: "Why 10% Niacinamide might actually be irritating your skin barrier.",
+    multiplier: "+2.7× MEDIAN",
   },
   {
-    src: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&auto=format&fit=crop&q=80",
-    alt: "Marketing attribution & scaling radar",
-  }
+    src: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&auto=format&fit=crop&q=80",
+    alt: "Figma Shortcuts Reel",
+    creator: "@figma",
+    hook: "5 auto-layout shortcuts that will save you 2 hours every sprint.",
+    multiplier: "+3.0× VIRAL",
+  },
 ];
 
 export default function LaunchpadPage() {
@@ -450,6 +470,30 @@ export default function LaunchpadPage() {
             >
               Analyze Content DNA <ArrowRight className="w-4 h-4 ml-1" />
             </button>
+          </div>
+
+          {/* 1-Click Competitor Presets */}
+          <div className="flex flex-wrap items-center gap-2 pt-3 mt-2 border-t border-white/5 text-xs">
+            <span className="text-zinc-500 font-mono text-[11px]">TRY COMPETITOR:</span>
+            {[
+              { label: '@glowrecipe (D2C Skincare)', target: 'https://instagram.com/glowrecipe' },
+              { label: '@gymshark (Fitness)', target: 'https://instagram.com/gymshark' },
+              { label: '@notionhq (SaaS)', target: 'https://instagram.com/notionhq' },
+              { label: '@zomato (Food/Viral)', target: 'https://instagram.com/zomato' },
+            ].map((preset) => (
+              <button
+                key={preset.label}
+                type="button"
+                onClick={() => {
+                  setUrl(preset.target);
+                  setErrorMessage('');
+                  handleAnalyze(preset.target);
+                }}
+                className="px-2.5 py-1 rounded-full bg-white/5 hover:bg-emerald-500/10 hover:border-emerald-500/30 border border-white/10 text-zinc-300 hover:text-emerald-300 font-mono text-[11px] transition-all"
+              >
+                {preset.label}
+              </button>
+            ))}
           </div>
 
           {/* Data Extraction Limit Selector */}

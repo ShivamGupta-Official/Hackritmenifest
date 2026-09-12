@@ -115,8 +115,11 @@ function keyframes(dir: 1 | -1, name: string, p: Required<CorridorPath>) {
 
 export type StreamImage = {
   src: string;
-  /** Only used if you drop the decorative treatment; the corridor is aria-hidden. */
   alt?: string;
+  creator?: string;
+  hook?: string;
+  multiplier?: string;
+  badge?: string;
 };
 
 export type ImageStreamHeroProps = {
@@ -222,14 +225,34 @@ export function ImageStreamHero({
                   }}
                 >
                   {img ? (
-                    <img
-                      src={img.src}
-                      alt={img.alt ?? ""}
-                      loading="lazy"
-                      decoding="async"
-                      className="h-full w-full object-cover"
-                      draggable={false}
-                    />
+                    <div className="relative h-full w-full overflow-hidden bg-black/90 border border-white/20 shadow-2xl">
+                      <img
+                        src={img.src}
+                        alt={img.alt ?? ""}
+                        loading="lazy"
+                        decoding="async"
+                        className="h-full w-full object-cover opacity-80 transition-transform hover:scale-105"
+                        draggable={false}
+                      />
+                      {/* ContentOS Intelligence Card Overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/35 to-black/20 p-2.5 flex flex-col justify-between pointer-events-none">
+                        <div className="flex items-center justify-between gap-1">
+                          <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-black/85 border border-emerald-500/30 text-emerald-400 backdrop-blur-md">
+                            {img.multiplier || "+2.4× VIRAL"}
+                          </span>
+                          <span className="text-[9px] font-mono text-zinc-300 bg-black/75 px-1.5 py-0.5 rounded border border-white/10">
+                            {img.creator || "@creator"}
+                          </span>
+                        </div>
+                        {img.hook && (
+                          <div className="bg-black/90 p-2 rounded-lg border border-white/15 backdrop-blur-md">
+                            <p className="text-[10px] font-mono font-medium text-amber-300 line-clamp-2 leading-snug">
+                              "{img.hook}"
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   ) : null}
                 </div>
               );

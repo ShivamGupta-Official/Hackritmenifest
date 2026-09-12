@@ -11,6 +11,8 @@ export interface InteractiveListItem {
   platform?: string;
   services: string;
   img: string;
+  metric?: string;
+  tag?: string;
 }
 
 export interface InteractiveListPreviewProps {
@@ -35,33 +37,43 @@ const DEFAULT_SMOOTHNESS = 0.35;
 const DEFAULT_LERP = 0.18;
 const DEFAULT_ITEMS: InteractiveListItem[] = [
   { 
-    client: "CONTENT DNA", 
-    platform: "REVERSE-ENGINEERING", 
-    services: "Hook Architecture, Transcript Mining, 3s Retention Signals", 
+    client: "01. HOOK REVERSE-ENGINEER", 
+    platform: "REELS & SHORTS", 
+    services: "Deconstructs 0-3s opening retention, visual cues, audio BPM & caption psychology", 
+    metric: "2.4× MEDIAN",
+    tag: "PROVENANCE",
     img: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80" 
   },
   { 
-    client: "AI AGENT SWARM", 
-    platform: "GROQ / LLAMA-3.3", 
-    services: "Strategist, Creator, Visual Critic, Policy Safeguard", 
+    client: "02. AI AGENT SWARM", 
+    platform: "4-AGENT PIPELINE", 
+    services: "Strategist, Scriptwriter, Brand Critic, and Studio Director collaborate in real time", 
+    metric: "GROQ / LLAMA-3.3",
+    tag: "MULTI-AGENT",
     img: "https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?auto=format&fit=crop&w=800&q=80" 
   },
   { 
-    client: "GROWTH BLUEPRINT", 
-    platform: "ORGANIC CADENCE", 
-    services: "5 Tailored Video Hooks, 7-Day Calendar, Paid Ad Angles", 
+    client: "03. 7-DAY GROWTH BLUEPRINT", 
+    platform: "ACTIONABLE PLAYBOOK", 
+    services: "Synthesizes 5 winning hook scripts, 7-day organic calendar, and paid ad creative angles", 
+    metric: "STUDIO READY",
+    tag: "PRODUCTION",
     img: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=800&q=80" 
   },
   { 
-    client: "OPPORTUNITY RADAR", 
-    platform: "TREND INTELLIGENCE", 
-    services: "Market Gap Detection, Velocity Tracking, Search Volume", 
+    client: "04. OPPORTUNITY RADAR", 
+    platform: "VELOCITY TELEMETRY", 
+    services: "Detects rising audience signals and competitor blindspots before algorithms saturate", 
+    metric: "0-100 INTENT",
+    tag: "ANOMALIES",
     img: "https://images.unsplash.com/photo-1618005198919-d3d4b5a92ead?auto=format&fit=crop&w=800&q=80" 
   },
   { 
-    client: "BRAND BRAIN", 
-    platform: "SEMANTIC RAG", 
-    services: "Guardrails, Personas, Vector Knowledge Base, Directives", 
+    client: "05. COMPANY BRAND BRAIN", 
+    platform: "PERSONA GOVERNANCE", 
+    services: "Injects strict negative claims, target audience pain points, tone, and positioning guardrails", 
+    metric: "100% ON-BRAND",
+    tag: "GUARDRAILS",
     img: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?auto=format&fit=crop&w=800&q=80" 
   },
 ];
@@ -433,37 +445,55 @@ export function InteractiveListPreview({
           >
             <table className="relative z-30 w-full table-fixed border-collapse">
               <colgroup>
-                <col style={{ width: "25%" }} />
-                <col style={{ width: "25%" }} />
-                <col style={{ width: "50%" }} />
+                <col style={{ width: "27%" }} />
+                <col style={{ width: "18%" }} />
+                <col style={{ width: "40%" }} />
+                <col style={{ width: "15%" }} />
               </colgroup>
+
+              <thead>
+                <tr className="border-b border-white/10 text-[10px] font-mono text-zinc-400 uppercase tracking-widest bg-black/40">
+                  <th className="text-left px-6 py-3 font-semibold">Engine / Module</th>
+                  <th className="text-left px-6 py-3 font-semibold">Architecture</th>
+                  <th className="text-left px-6 py-3 font-semibold">Core Capability & Signal</th>
+                  <th className="text-right px-6 py-3 font-semibold">Telemetry</th>
+                </tr>
+              </thead>
 
               <tbody>
                 {items.map((item: any, index: number) => (
                   <tr
                     key={`${item.client}-${index}`}
-                    className="border-b border-white/10 transition-colors"
+                    className="border-b border-white/5 transition-colors cursor-pointer group"
                     onMouseEnter={(event) =>
                       onRowEnter(event.currentTarget, index)
                     }
                     onMouseLeave={() => onRowLeave(index)}
                   >
-                    <td className="whitespace-nowrap px-6 py-4 text-xs font-bold uppercase tracking-widest text-zinc-100">
+                    <td className="whitespace-nowrap px-6 py-4 text-xs font-bold uppercase tracking-wider text-zinc-100">
                       {item.client}
                     </td>
 
                     <td className="whitespace-nowrap px-6 py-4 text-xs font-medium uppercase tracking-wider text-emerald-400">
-                      {item.platform}
+                      <span className="px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-[10px] font-mono">
+                        {item.platform}
+                      </span>
                     </td>
 
-                    <td className="whitespace-nowrap px-6 py-4 text-xs uppercase tracking-normal text-zinc-400">
+                    <td className="px-6 py-4 text-xs tracking-normal text-zinc-300 truncate">
                       {item.services}
+                    </td>
+
+                    <td className="whitespace-nowrap px-6 py-4 text-right text-xs font-mono text-cyan-300">
+                      <span className="px-2 py-0.5 rounded bg-cyan-500/10 border border-cyan-500/20 text-[10px]">
+                        {item.metric || "ACTIVE"}
+                      </span>
                     </td>
                   </tr>
                 ))}
 
                 <tr>
-                  <td colSpan={3} className="p-0" />
+                  <td colSpan={4} className="p-0" />
                 </tr>
               </tbody>
             </table>
@@ -474,30 +504,29 @@ export function InteractiveListPreview({
       {isCoarsePointer && (
         <div style={{ backgroundColor: bgColor }} className={`w-full font-mono text-white ${className}`}>
           {items.map((item: any, index: number) => (
-            <div key={`${item.client}-${index}`} className="flex border-b border-white/10">
-              <div className="flex w-1/2 flex-col justify-between gap-3 p-4">
-                <div className="flex flex-col gap-1">
-                  <p className="font-bold uppercase tracking-widest max-md:text-sm max-[1025px]:text-xl text-white">
-                    {item.client}
-                  </p>
-
-                  {item.platform && (
-                    <p className="uppercase tracking-widest text-emerald-400 max-md:text-xs max-[1025px]:text-lg">
-                      {item.platform}
-                    </p>
-                  )}
-
-                  <p className="leading-relaxed text-white/60 max-md:text-xs max-[1025px]:text-base">
-                    {item.services}
-                  </p>
+            <div key={`${item.client}-${index}`} className="flex border-b border-white/10 p-4 gap-4 items-center">
+              <div className="w-1/2 flex flex-col gap-2">
+                <div className="flex items-center gap-2">
+                  <span className="px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-[10px] text-emerald-300">
+                    {item.platform}
+                  </span>
+                  <span className="px-2 py-0.5 rounded bg-cyan-500/10 border border-cyan-500/20 text-[10px] text-cyan-300">
+                    {item.metric || "LIVE"}
+                  </span>
                 </div>
+                <p className="font-bold text-sm text-white tracking-wide">
+                  {item.client}
+                </p>
+                <p className="text-xs text-zinc-400 leading-relaxed">
+                  {item.services}
+                </p>
               </div>
 
-              <div className="relative aspect-3/4 h-full w-1/2 max-[1025px]:h-[30vh]">
+              <div className="w-1/2 aspect-video rounded-xl overflow-hidden border border-white/10 relative">
                 <img
                   src={item.img}
                   alt={item.client}
-                  className="absolute inset-0 h-full w-full object-cover rounded-lg"
+                  className="w-full h-full object-cover"
                 />
               </div>
             </div>
