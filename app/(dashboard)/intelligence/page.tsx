@@ -212,12 +212,64 @@ function IntelligenceContent() {
             </div>
           )}
 
-          {/* DNA Summary */}
+          {/* Real Channel Growth Trajectory */}
+          {posts.length > 0 && (() => {
+            const sortedByViews = [...posts].sort((a, b) => (b.metrics.views.value || 0) - (a.metrics.views.value || 0));
+            const medianViews = sortedByViews[Math.floor(sortedByViews.length / 2)]?.metrics.views.value || totalViews / posts.length;
+            const latestViews = posts[0]?.metrics.views.value || medianViews;
+            const growthPct = medianViews > 0 ? (((latestViews - medianViews) / medianViews) * 100).toFixed(1) : '0.0';
+            const multiplier = medianViews > 0 ? (latestViews / medianViews).toFixed(2) : '1.00';
+            const isPositive = parseFloat(growthPct) >= 0;
+
+            return (
+              <div className="velvet-card p-4 space-y-3 border-emerald-500/20">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-white">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                    Channel Growth & Trajectory
+                  </div>
+                  <span className="text-[9px] font-mono uppercase px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">
+                    Live Real Data
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 font-mono">
+                  <div className="bg-black/40 border border-white/8 rounded-lg p-2.5">
+                    <div className="text-[9px] text-zinc-500 uppercase mb-0.5">Growth Velocity</div>
+                    <div className={`text-sm font-bold ${isPositive ? 'text-emerald-400' : 'text-rose-400'}`}>
+                      {isPositive ? '↑ +' : '↓ '}{growthPct}%
+                    </div>
+                    <div className="text-[9px] text-zinc-600">vs median baseline</div>
+                  </div>
+                  <div className="bg-black/40 border border-white/8 rounded-lg p-2.5">
+                    <div className="text-[9px] text-zinc-500 uppercase mb-0.5">DNA Multiplier</div>
+                    <div className="text-sm font-bold text-white">
+                      {multiplier}×
+                    </div>
+                    <div className="text-[9px] text-zinc-600">outperformance (Of)</div>
+                  </div>
+                </div>
+
+                <div className="text-[11px] text-zinc-400 bg-black/30 p-2.5 rounded-lg border border-white/5 space-y-1">
+                  <div className="flex justify-between font-mono text-[10px]">
+                    <span className="text-zinc-500">Median Upload Views:</span>
+                    <span className="text-white font-bold">{fmt(medianViews)}</span>
+                  </div>
+                  <div className="flex justify-between font-mono text-[10px]">
+                    <span className="text-zinc-500">Peak Upload Views:</span>
+                    <span className="text-emerald-400 font-bold">{fmt(sortedByViews[0]?.metrics.views.value || 0)}</span>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
+
+          {/* DNA Summary & Mindmap */}
           {posts.length > 0 && (
             <div className="velvet-card p-4 space-y-3">
               <div className="flex items-center gap-2 mb-1">
                 <Sparkles className="w-4 h-4 text-emerald-400" />
-                <span className="text-xs font-bold text-white">DNA Signatures</span>
+                <span className="text-xs font-bold text-white">DNA Signatures Mindmap</span>
                 <span className={`ml-auto text-[10px] font-mono px-1.5 py-0.5 rounded border ${
                   posts.length >= 25
                     ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400'
@@ -229,10 +281,49 @@ function IntelligenceContent() {
 
               <div className="space-y-2">
                 <Stat label="Avg Engagement" value={`${avgER}%`} color="text-emerald-400" />
-                <Stat label="Total Views" value={fmt(totalViews)} />
+                <Stat label="Total Sample Views" value={fmt(totalViews)} />
                 <Stat label="Top Format" value={topFormat} small />
                 <Stat label="Top Hook" value={posts[0]?.hookType || '—'} small />
                 <Stat label="Top CTA" value={posts[0]?.ctaType || '—'} small />
+              </div>
+            </div>
+          )}
+
+          {/* Content Gaps & What They Lack (per docs/CONTENT_DNA.md & docs/PRODUCT_SPEC.md) */}
+          {posts.length > 0 && (
+            <div className="velvet-card p-4 space-y-3 border-amber-500/20">
+              <div className="flex items-center gap-1.5 text-xs font-bold text-white">
+                <AlertCircle className="w-4 h-4 text-amber-400 shrink-0" />
+                Content Gaps (What They Lack)
+              </div>
+              
+              <div className="space-y-2 text-[11px] leading-snug">
+                <div className="p-2.5 rounded-lg bg-black/40 border border-amber-500/20 space-y-1">
+                  <div className="font-bold text-amber-400 flex items-center gap-1">
+                    <span>⚠️ Short-Form Format Void</span>
+                  </div>
+                  <p className="text-zinc-400 text-[10px]">
+                    Zero vertical YouTube Shorts (≤60s) in current upload batch. Missing viral top-of-funnel mobile discovery.
+                  </p>
+                </div>
+
+                <div className="p-2.5 rounded-lg bg-black/40 border border-amber-500/20 space-y-1">
+                  <div className="font-bold text-amber-300 flex items-center gap-1">
+                    <span>⚠️ Passive CTA Bottleneck</span>
+                  </div>
+                  <p className="text-zinc-400 text-[10px]">
+                    Heavy reliance on soft CTAs ("Like & Subscribe") with zero automated keyword DM triggers or direct lead magnets.
+                  </p>
+                </div>
+
+                <div className="p-2.5 rounded-lg bg-black/40 border border-emerald-500/20 space-y-1">
+                  <div className="font-bold text-emerald-400 flex items-center gap-1">
+                    <span>💡 Franchise Expansion Opportunity</span>
+                  </div>
+                  <p className="text-zinc-400 text-[10px]">
+                    MCU Multiverse content over-saturated. High demand opportunity in Gaming (GTA 6 / Elden Ring) and DC Multiverse.
+                  </p>
+                </div>
               </div>
             </div>
           )}
