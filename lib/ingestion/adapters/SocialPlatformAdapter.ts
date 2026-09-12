@@ -24,6 +24,8 @@ export interface ExtractedPost {
   tone: string; // e.g. 'Authoritative', 'Raw & Authentic', 'High-Energy'
   topic: string;
   mediaUrl?: string;
+  thumbnailUrl?: string; // post thumbnail / cover image
+  postType?: 'reel' | 'carousel' | 'image' | 'video' | 'story' | 'short' | 'article'; // content type
   permalink: string;
   publishedAt: string;
   
@@ -34,6 +36,10 @@ export interface ExtractedPost {
     comments: ExtractedMetric<number>;
     shares: ExtractedMetric<number>;
     saves: ExtractedMetric<number>;
+    reach?: ExtractedMetric<number>;      // Instagram / TikTok
+    reposts?: ExtractedMetric<number>;    // Twitter / TikTok
+    impressions?: ExtractedMetric<number>;// LinkedIn / YouTube
+    watchTime?: ExtractedMetric<number>;  // YouTube (seconds)
     engagementRate: ExtractedMetric<number>;
   };
 
@@ -53,6 +59,7 @@ export interface PlatformProfileInfo {
   avatarUrl?: string;
   bio?: string;
   followersCount?: ExtractedMetric<number>;
+  followingCount?: ExtractedMetric<number>;
   postsCount?: ExtractedMetric<number>;
   isVerified?: boolean;
 }

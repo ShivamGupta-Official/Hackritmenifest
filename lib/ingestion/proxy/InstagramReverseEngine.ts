@@ -1,4 +1,4 @@
-import { proxyDispatcher } from './ProxyDispatcher';
+import puppeteer from 'puppeteer';
 
 export interface InstagramRawPost {
   id: string;
@@ -18,7 +18,9 @@ export interface InstagramScrapeResult {
     handle: string;
     displayName: string;
     bio: string;
+    avatarUrl?: string;
     followers: number;
+    following?: number;
     postsCount: number;
     isVerified: boolean;
     userId?: string;
@@ -40,152 +42,95 @@ export class InstagramReverseEngine {
     return InstagramReverseEngine.instance;
   }
 
-  /**
-   * Scrapes an Instagram account with cursor-based pagination up to the requested limit.
-   */
   public async scrapeProfile(handle: string, requestedLimit: number = 12): Promise<InstagramScrapeResult> {
     const cleanHandle = handle.replace(/^@/, '').toLowerCase();
-    const appId = process.env.WMACID || process.env.META_APP_ID || process.env.X_IG_APP_ID || '936619743392459';
 
     try {
-      const initialUrl = `https://www.instagram.com/api/v1/users/web_profile_info/?username=${encodeURIComponent(cleanHandle)}`;
+      console.log(`[InstagramReverseEngine] Launching Puppeteer for ${cleanHandle}...`);
       
-      const res = await proxyDispatcher.dispatch(initialUrl, {
-        headers: {
-          'x-ig-app-id': appId,
-          'x-ig-www-claim': '0',
-          'x-requested-with': 'XMLHttpRequest',
-          'Referer': `https://www.instagram.com/${cleanHandle}/`,
-          'Origin': 'https://www.instagram.com'
-        },
-        timeoutMs: 6000
+      const browser = await puppeteer.launch({
+        headless: true,
+        args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
       });
-
-      if (!res.ok) {
-        return {
-          success: false,
-          profile: {
-            handle: cleanHandle,
-            displayName: cleanHandle,
-            bio: '',
-            followers: 0,
-            postsCount: 0,
-            isVerified: false
-          },
-          posts: [],
-          hasNextPage: false,
-          error: `Instagram API returned status ${res.status}`
-        };
+      
+      const page = await browser.newPage();
+      await page.setViewport({ width: 1366, height: 768 });
+      
+      const profileUrl = `https://www.instagram.com/${cleanHandle}/`;
+      await page.goto(profileUrl, { waitUntil: 'networkidle2', timeout: 30000 });
+      
+      // Wait a moment for dynamic tags to populate
+      await new Promise(r => setTimeout(r, 2000));
+      
+      const currentUrl = page.url();
+      if (currentUrl.includes('/accounts/login')) {
+        await browser.close();
+        throw new Error('Instagram aggressively redirected to the login page. Anonymous access blocked.');
       }
 
-      const json = await res.json();
-      const user = json?.data?.user;
-
-      if (!user) {
-        return {
-          success: false,
-          profile: {
-            handle: cleanHandle,
-            displayName: cleanHandle,
-            bio: '',
-            followers: 0,
-            postsCount: 0,
-            isVerified: false
-          },
-          posts: [],
-          hasNextPage: false,
-          error: 'User data not found in response'
-        };
+      const html = await page.content();
+      
+      // Extract from meta tags
+      const metaDescMatch = html.match(/<meta[^>]*property="og:description"[^>]*content="([^"]+)"/i) || html.match(/<meta[^>]*content="([^"]+)"[^>]*property="og:description"/i);
+      
+      if (!metaDescMatch || !metaDescMatch[1]) {
+        await browser.close();
+        throw new Error('Could not find profile metadata on the page. The page might be blocked or structured differently.');
       }
 
-      const timelineMedia = user.edge_owner_to_timeline_media;
-      const initialEdges = timelineMedia?.edges || [];
-      const pageInfo = timelineMedia?.page_info || {};
-      const userId = user.id;
-
-      const collectedPosts: InstagramRawPost[] = [];
-
-      // Parse initial batch
-      this.parseEdges(initialEdges, collectedPosts);
-
-      let hasNextPage = pageInfo.has_next_page ?? false;
-      let endCursor = pageInfo.end_cursor;
-
-      // Deep Pagination Loop if requestedLimit > collectedPosts.length
-      const maxPages = Math.min(Math.ceil(requestedLimit / 12), 8); // safety ceiling
-      let pageCount = 1;
-
-      while (hasNextPage && endCursor && collectedPosts.length < requestedLimit && pageCount < maxPages) {
-        pageCount++;
-        try {
-          // GraphQL Pagination Query Hash for User Profile Feed
-          const queryHash = '69cba40317214236af40e7efa697781d';
-          const variables = JSON.stringify({
-            id: userId,
-            first: 12,
-            after: endCursor
-          });
-
-          const nextUrl = `https://www.instagram.com/graphql/query/?query_hash=${queryHash}&variables=${encodeURIComponent(variables)}`;
-
-          const nextRes = await proxyDispatcher.dispatch(nextUrl, {
-            headers: {
-              'x-ig-app-id': appId,
-              'x-requested-with': 'XMLHttpRequest',
-              'Referer': `https://www.instagram.com/${cleanHandle}/`
-            },
-            timeoutMs: 5000,
-            applyJitter: true,
-            minJitterMs: 300,
-            maxJitterMs: 600
-          });
-
-          if (!nextRes.ok) break;
-
-          const nextJson = await nextRes.json();
-          const nextMedia = nextJson?.data?.user?.edge_owner_to_timeline_media;
-          const nextEdges = nextMedia?.edges || [];
-
-          if (nextEdges.length === 0) break;
-
-          this.parseEdges(nextEdges, collectedPosts);
-
-          hasNextPage = nextMedia?.page_info?.has_next_page ?? false;
-          endCursor = nextMedia?.page_info?.end_cursor;
-        } catch {
-          // If secondary pagination hits a checkpoint, safely return what was collected so far
-          break;
-        }
+      const desc = metaDescMatch[1];
+      // format: "1M Followers, 200 Following, 500 Posts - See Instagram photos and videos from Name (@username)"
+      const followersMatch = desc.match(/([\d.,KMB]+)\s+Followers/i);
+      const followingMatch = desc.match(/([\d.,KMB]+)\s+Following/i);
+      const postsMatch = desc.match(/([\d.,KMB]+)\s+Posts/i);
+      
+      const parseNum = (str: string) => {
+        if (!str) return 0;
+        let num = parseFloat(str.replace(/,/g, ''));
+        if (str.toLowerCase().includes('k')) num *= 1000;
+        if (str.toLowerCase().includes('m')) num *= 1000000;
+        if (str.toLowerCase().includes('b')) num *= 1000000000;
+        return Math.round(num);
+      };
+      
+      const followers = parseNum(followersMatch?.[1] || '0');
+      const postsCount = parseNum(postsMatch?.[1] || '0');
+      
+      const nameMatch = html.match(/<meta[^>]*property="og:title"[^>]*content="([^"]+)"/i) || html.match(/<meta[^>]*content="([^"]+)"[^>]*property="og:title"/i);
+      let displayName = cleanHandle;
+      if (nameMatch && nameMatch[1]) {
+        let rawName = nameMatch[1];
+        rawName = rawName.replace(/&#064;/g, '@').replace(/&amp;/g, '&');
+        displayName = rawName.split(' (@')[0] || cleanHandle;
       }
+
+      const imageMatch = html.match(/<meta[^>]*property="og:image"[^>]*content="([^"]+)"/i) || html.match(/<meta[^>]*content="([^"]+)"[^>]*property="og:image"/i);
+      const avatarUrl = imageMatch ? imageMatch[1].replace(/&amp;/g, '&') : undefined;
+      
+      await browser.close();
+      
+      console.log(`[InstagramReverseEngine] Successfully scraped profile metadata for ${cleanHandle}`);
 
       return {
         success: true,
         profile: {
-          handle: user.username || cleanHandle,
-          displayName: user.full_name || cleanHandle,
-          bio: user.biography || '',
-          followers: user.edge_followed_by?.count || 0,
-          postsCount: timelineMedia?.count || collectedPosts.length,
-          isVerified: user.is_verified || false,
-          userId
-        },
-        posts: collectedPosts.slice(0, requestedLimit),
-        hasNextPage,
-        endCursor,
-        rawSnapshot: {
-          scrapedAt: new Date().toISOString(),
           handle: cleanHandle,
-          extractedCount: collectedPosts.length,
-          userSnapshot: {
-            id: user.id,
-            username: user.username,
-            full_name: user.full_name,
-            biography: user.biography,
-            followers: user.edge_followed_by?.count
-          }
-        }
+          displayName,
+          bio: '', // Bio extraction is complex without JSON data, omitting for now
+          avatarUrl,
+          followers,
+          following: parseNum(followingMatch?.[1] || '0'),
+          postsCount,
+          isVerified: false
+        },
+        posts: [], // Posts cannot be fetched anonymously anymore
+        hasNextPage: false,
+        rawSnapshot: { scrapedAt: new Date().toISOString(), fallback: 'puppeteer_meta' },
+        error: 'Posts cannot be fetched anonymously on Instagram without a session ID. Returned profile data only.'
       };
+
     } catch (err: any) {
+      console.error('[InstagramReverseEngine] Scrape failed:', err.message);
       return {
         success: false,
         profile: {
@@ -193,6 +138,7 @@ export class InstagramReverseEngine {
           displayName: cleanHandle,
           bio: '',
           followers: 0,
+          following: 0,
           postsCount: 0,
           isVerified: false
         },
@@ -200,32 +146,6 @@ export class InstagramReverseEngine {
         hasNextPage: false,
         error: err.message || 'Instagram extraction failed'
       };
-    }
-  }
-
-  private parseEdges(edges: any[], targetArray: InstagramRawPost[]): void {
-    for (const edge of edges) {
-      const node = edge.node;
-      if (!node) continue;
-
-      const caption = node.edge_media_to_caption?.edges?.[0]?.node?.text || '';
-      const likes = node.edge_liked_by?.count || node.edge_media_preview_like?.count || 0;
-      const comments = node.edge_media_to_comment?.count || 0;
-      const views = node.video_view_count || Math.round(likes * 14.5);
-      const timestamp = node.taken_at_timestamp ? new Date(node.taken_at_timestamp * 1000).toISOString() : new Date().toISOString();
-      const shortcode = node.shortcode || '';
-
-      targetArray.push({
-        id: node.id || `ig_${shortcode || Math.random().toString(36).slice(2)}`,
-        title: caption.split('\n')[0].slice(0, 60) || 'Instagram Media Update',
-        caption,
-        likes,
-        comments,
-        views,
-        permalink: `https://instagram.com/p/${shortcode}`,
-        publishedAt: timestamp,
-        shortcode
-      });
     }
   }
 }

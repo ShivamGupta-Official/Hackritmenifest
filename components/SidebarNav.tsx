@@ -9,6 +9,7 @@ import {
   Settings, 
   LogOut,
   Hash,
+  Camera,
   ChevronDown,
   ChevronRight,
   Inbox,
@@ -51,6 +52,7 @@ const sidebarNavGroups: NavGroupData[] = [
       { id: 'studio', title: 'Content Studio', icon: Blocks, href: '/studio' },
       { id: 'campaigns', title: 'Campaign Studio', icon: FolderKanban, href: '/campaigns' },
       { id: 'brain', title: 'Brand Brain', icon: Terminal, href: '/brain' },
+      { id: 'scraper', title: 'IG Scraper', icon: Camera, href: '/scraper' },
     ]
   },
   {
