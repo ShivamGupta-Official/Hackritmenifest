@@ -1,4 +1,11 @@
-# ContentOS — AI Content & Growth Intelligence Platform
+<div align="center">
+
+# ⚡ ContentOS
+### AI-Powered Content & Growth Intelligence Platform
+
+[Key Capabilities](#-key-capabilities) • [System Architecture](#-system-architecture) • [Technology Stack](#-technology-stack) • [Getting Started](#-getting-started)
+
+<br/>
 
 ![Next.js](https://img.shields.io/badge/Next.js-16.3.4-black?style=for-the-badge&logo=next.js)
 ![React](https://img.shields.io/badge/React-19.2.8-61DAFB?style=for-the-badge&logo=react)
@@ -6,7 +13,11 @@
 ![TailwindCSS](https://img.shields.io/badge/Tailwind-3.4-38B2AC?style=for-the-badge&logo=tailwind-css)
 ![Status](https://img.shields.io/badge/Build-Passing-emerald?style=for-the-badge)
 
-> **ContentOS** is a high-performance **Content & Growth Intelligence Platform** designed to deconstruct public social media content across platforms (**YouTube, Instagram, TikTok, LinkedIn, Twitter/X**). It extracts engagement velocity, viral hook structures, emotional triggers, and real-time performance metrics to generate automated **7-Day Growth Blueprints** and ad script variants in seconds.
+<br/>
+
+> **ContentOS** is an enterprise-grade **Content & Growth Intelligence Platform** designed to deconstruct public social media content across **YouTube, Instagram, TikTok, LinkedIn, and Twitter/X**. It extracts engagement velocity, viral hook structures, emotional triggers, and real-time performance metrics to generate automated **7-Day Growth Blueprints** and ad script variants in seconds.
+
+</div>
 
 ---
 
