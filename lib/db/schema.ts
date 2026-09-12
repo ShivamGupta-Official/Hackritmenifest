@@ -412,6 +412,88 @@ const RawScrapedSnapshotSchema = new Schema<IRawScrapedSnapshot>({
   createdAt: { type: Date, default: Date.now }
 });
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Instagram Scraper Storage
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Scraped profile metadata (one document per username)
+export interface IScrapedProfile extends Document {
+  username: string;
+  displayName: string;
+  bio: string;
+  avatarUrl?: string;
+  followers: number;
+  following: number;
+  postsCount: number;
+  isVerified: boolean;
+  isPrivate: boolean;
+  externalUrl?: string;
+  source: string;
+  scrapedAt: Date;
+  updatedAt: Date;
+}
+const ScrapedProfileSchema = new Schema<IScrapedProfile>({
+  username: { type: String, required: true, unique: true, index: true },
+  displayName: { type: String, default: '' },
+  bio: { type: String, default: '' },
+  avatarUrl: String,
+  followers: { type: Number, default: 0 },
+  following: { type: Number, default: 0 },
+  postsCount: { type: Number, default: 0 },
+  isVerified: { type: Boolean, default: false },
+  isPrivate: { type: Boolean, default: false },
+  externalUrl: String,
+  source: { type: String, default: 'unknown' },
+  scrapedAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now },
+});
+
+// Individual scraped post
+export interface IScrapedPost extends Document {
+  username: string;       // owner
+  shortcode: string;      // instagram post shortcode
+  postId: string;         // instagram internal ID
+  caption: string;
+  likes: number;
+  comments: number;
+  views?: number;
+  thumbnailUrl: string;
+  imageUrl: string;
+  mediaType: 'image' | 'video' | 'carousel';
+  permalink: string;
+  publishedAt?: number;   // Unix timestamp
+  altText?: string;
+  // AI analysis
+  aiTranscript?: string;
+  aiSummary?: string;
+  aiSentiment?: string;
+  aiTopics?: string[];
+  aiAnalyzedAt?: Date;
+  scrapedAt: Date;
+}
+const ScrapedPostSchema = new Schema<IScrapedPost>({
+  username: { type: String, required: true, index: true },
+  shortcode: { type: String, required: true, unique: true },
+  postId: { type: String, default: '' },
+  caption: { type: String, default: '' },
+  likes: { type: Number, default: 0 },
+  comments: { type: Number, default: 0 },
+  views: Number,
+  thumbnailUrl: { type: String, default: '' },
+  imageUrl: { type: String, default: '' },
+  mediaType: { type: String, enum: ['image', 'video', 'carousel'], default: 'image' },
+  permalink: { type: String, default: '' },
+  publishedAt: Number,
+  altText: String,
+  aiTranscript: String,
+  aiSummary: String,
+  aiSentiment: String,
+  aiTopics: [String],
+  aiAnalyzedAt: Date,
+  scrapedAt: { type: Date, default: Date.now },
+});
+ScrapedPostSchema.index({ username: 1, scrapedAt: -1 });
+
 // Export Models
 export const Organization = mongoose.models.Organization || mongoose.model<IOrganization>('Organization', OrganizationSchema);
 export const Workspace = mongoose.models.Workspace || mongoose.model<IWorkspace>('Workspace', WorkspaceSchema);
@@ -428,3 +510,5 @@ export const GeneratedAsset = mongoose.models.GeneratedAsset || mongoose.model<I
 export const DocumentChunk = mongoose.models.DocumentChunk || mongoose.model<IDocumentChunk>('DocumentChunk', DocumentChunkSchema);
 export const ConnectedAccount = mongoose.models.ConnectedAccount || mongoose.model<IConnectedAccount>('ConnectedAccount', ConnectedAccountSchema);
 export const RawScrapedSnapshot = mongoose.models.RawScrapedSnapshot || mongoose.model<IRawScrapedSnapshot>('RawScrapedSnapshot', RawScrapedSnapshotSchema);
+export const ScrapedProfile = mongoose.models.ScrapedProfile || mongoose.model<IScrapedProfile>('ScrapedProfile', ScrapedProfileSchema);
+export const ScrapedPost = mongoose.models.ScrapedPost || mongoose.model<IScrapedPost>('ScrapedPost', ScrapedPostSchema);

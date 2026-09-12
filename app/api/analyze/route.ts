@@ -27,6 +27,21 @@ export async function POST(req: NextRequest) {
 
     const profile = await adapter.getProfile(url);
     const handle = profile.handle || adapter.extractAccountHandle(url) || 'creator';
+
+    // profileOnly mode — used by the Verify step (fast, no post extraction)
+    if (body.profileOnly === true) {
+      return NextResponse.json({
+        success: true,
+        platform,
+        handle,
+        profile,
+        posts: [],
+        extractedCount: 0,
+        analyzedAt: new Date().toISOString(),
+        provenance: 'PROFILE_ONLY'
+      });
+    }
+
     const posts = await adapter.extractPublicPosts(url, limit);
 
     return NextResponse.json({

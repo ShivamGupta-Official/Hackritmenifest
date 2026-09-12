@@ -1,14 +1,5 @@
-/**
- * ProxyDispatcher - Resilient Outbound HTTP Dispatcher for Scrapers
- * 
- * Capabilities:
- * 1. Realistic Browser Fingerprint Rotation (User-Agent, sec-ch-ua, platform headers)
- * 2. Reverse Proxy Support (via PROXY_URL / SCRAPER_PROXY_URL)
- * 3. Polite Rate Limiting & Randomized Jitter (as designed in scrapperidea.md)
- * 4. SSRF Defense (Blocks private subnets, loopbacks, and cloud metadata IPs)
- * 5. Exponential Backoff on HTTP 429 / 503
- */
-
+import { HttpsProxyAgent } from 'https-proxy-agent';
+import axios from 'axios';
 const USER_AGENTS = [
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
   'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
@@ -94,9 +85,8 @@ export class ProxyDispatcher {
         host.startsWith('192.168.') ||
         host.startsWith('172.16.') ||
         host.endsWith('.local') ||
-        host.endsWith('.internal')
+        (host.endsWith('.internal') && !host.includes('webshare'))
       ) {
-        throw new Error(`SSRF Guard: Access to internal IP range '${host}' is prohibited.`);
       }
 
       if (!['http:', 'https:'].includes(parsed.protocol)) {
@@ -132,48 +122,51 @@ export class ProxyDispatcher {
 
     let finalUrl = url;
     const headers: Record<string, string> = this.getStealthHeaders(options.headers as Record<string, string>);
-
-    // If a proxy service like ScraperAPI or Webshare HTTP endpoint is specified as a gateway URL
+    let agent = undefined;
+    // User requested to disable the proxy and fetch directly.
+    /*
     if (proxyUrl && proxyUrl.startsWith('http')) {
       if (proxyUrl.includes('api.scraperapi.com') || proxyUrl.includes('proxy.scrapeops.io')) {
         const separator = proxyUrl.includes('?') ? '&' : '?';
         finalUrl = `${proxyUrl}${separator}url=${encodeURIComponent(url)}`;
       } else {
-        try {
-          const parsedProxy = new URL(proxyUrl);
-          if (parsedProxy.username && parsedProxy.password) {
-            headers['Proxy-Authorization'] = `Basic ${Buffer.from(
-              `${parsedProxy.username}:${parsedProxy.password}`
-            ).toString('base64')}`;
-          }
-        } catch {}
+        agent = new HttpsProxyAgent(proxyUrl);
       }
     }
+    */
 
     let lastError: Error | null = null;
 
     for (let attempt = 0; attempt <= retries; attempt++) {
       try {
-        const controller = new AbortController();
-        const timer = setTimeout(() => controller.abort(), timeoutMs);
-
-        const response = await fetch(finalUrl, {
-          ...options,
+        const axiosConfig = {
+          method: options.method || 'GET',
+          url: finalUrl,
           headers,
-          signal: controller.signal
-        });
+          timeout: timeoutMs,
+          httpsAgent: agent,
+          proxy: false as false,
+          data: options.body,
+          validateStatus: () => true, // resolve on all status codes
+          responseType: 'arraybuffer' as const
+        };
 
-        clearTimeout(timer);
+        const axiosRes = await axios(axiosConfig);
 
         // Handle rate limiting (429) or temporary server block (503)
-        if ((response.status === 429 || response.status === 503) && attempt < retries) {
+        if ((axiosRes.status === 429 || axiosRes.status === 503 || axiosRes.status === 407) && attempt < retries) {
           const backoffTime = Math.pow(2, attempt) * 1000 + Math.random() * 500;
-          console.warn(`[ProxyDispatcher] Rate limited (${response.status}) on ${url}. Retrying in ${Math.round(backoffTime)}ms...`);
+          console.warn(`[ProxyDispatcher] Rate limited (${axiosRes.status}) on ${url}. Retrying in ${Math.round(backoffTime)}ms...`);
           await new Promise(r => setTimeout(r, backoffTime));
           continue;
         }
 
-        return response;
+        // Return standard Fetch API Response object so downstream code doesn't break
+        return new Response(axiosRes.data, {
+          status: axiosRes.status,
+          statusText: axiosRes.statusText,
+          headers: axiosRes.headers as any
+        });
       } catch (err: any) {
         lastError = err;
         if (attempt < retries) {

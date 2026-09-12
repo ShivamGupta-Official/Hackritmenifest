@@ -9,6 +9,7 @@ import {
   Settings, 
   LogOut, 
   Hash, 
+  Camera,
   ChevronDown, 
   ChevronRight, 
   Inbox, 
@@ -47,16 +48,55 @@ export type NavGroupData = {
   items: NavItemData[];
 };
 
+const sidebarNavGroups: NavGroupData[] = [
+  {
+    items: [
+      { id: 'search', title: 'Search', icon: Search, shortcut: '⌘K' },
+      { id: 'home', title: 'Executive Overview', icon: LayoutDashboard, href: '/dashboard' },
+      { id: 'intelligence', title: 'Content Intelligence', icon: Activity, href: '/intelligence' },
+      { id: 'blueprint', title: 'Growth Blueprint', icon: Sparkles, href: '/blueprint' },
+      { id: 'radar', title: 'Opportunity Radar', icon: Globe, href: '/radar' },
+      { id: 'studio', title: 'Content Studio', icon: Blocks, href: '/studio' },
+      { id: 'campaigns', title: 'Campaign Studio', icon: FolderKanban, href: '/campaigns' },
+      { id: 'brain', title: 'Brand Brain', icon: Terminal, href: '/brain' },
+      { id: 'scraper', title: 'IG Scraper', icon: Camera, href: '/scraper' },
+      { id: 'showcase', title: 'Component Showcase', icon: Sparkles, href: '/showcase' },
+    ]
+  },
+  {
+    heading: 'Workspace',
+    items: [
+      { id: 'calendar', title: 'Calendar', icon: Calendar },
+      { 
+        id: 'team', 
+        title: 'Team', 
+        icon: Users,
+        children: [
+          { id: 't-design', title: 'Designers', icon: Hash },
+          { id: 't-eng', title: 'Engineering', icon: Hash },
+          { id: 't-product', title: 'Product', icon: Hash },
+        ]
+      },
+      { id: 'finance', title: 'Finance', icon: CreditCard },
+    ]
+  },
+];
+
+const sidebarBottomItems: NavItemData[] = [
+  { id: 'settings', title: 'Settings', icon: Settings, shortcut: '⌘,' },
+  { id: 'logout', title: 'Log out', icon: LogOut },
+];
+
 function WorkspaceSwitcher({ 
   selected, 
   onSelect,
-  workspaces,
-  onAddWorkspace
+  workspaces = ['Acme Corp', 'Stark Industries', 'Wayne Enterprises'],
+  onAddWorkspace = () => {}
 }: { 
   selected?: string, 
   onSelect?: (ws: string) => void,
-  workspaces: string[],
-  onAddWorkspace: (name: string) => void
+  workspaces?: string[],
+  onAddWorkspace?: (name: string) => void
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [showNewWsModal, setShowNewWsModal] = useState(false);
